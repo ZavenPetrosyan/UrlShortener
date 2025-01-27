@@ -17,15 +17,10 @@ async function bootstrap() {
 
   app.enableCors();
   app.use(helmet());
-
-  // Body Parsing
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
-
-  // Validation Pipes
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // Setup Redis Client
   const redisService = app.get(RedisService);
   const redisClient = redisService.getClient();
 
@@ -50,7 +45,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  // Start the application
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT);
   console.log(`🚀 Service is running on http://localhost:${PORT}`);

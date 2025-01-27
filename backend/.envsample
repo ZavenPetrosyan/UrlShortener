@@ -1,0 +1,7 @@
+ENV=LOCAL
+NODE_ENV=dev
+MONGO_URI=mongodb://mongo:27017/urlshortenerdb
+MONGO_DB_NAME=shorted_url_db
+REDIS_URL=redis://redis:6379
+BASE_URL=https://short.ly
+PORT=3000

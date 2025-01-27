@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -34,11 +35,24 @@ export class UrlShortenerController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Redirect to original URL' })
-  async redirect(@Param('slug') slug: string, @Res() res: Response) {
-    const originalUrl = await this.urlShortenerService.getOriginalUrl(slug);
-    if (!originalUrl) throw new NotFoundException('URL not found');
+  @ApiOperation({ summary: 'Get original URL for redirection' })
+  async getOriginalUrl(@Param('slug') slug: string) {
+    console.log(`Incoming GET request for slug: ${slug}`);
 
-    return res.redirect(originalUrl);
+    try {
+      const originalUrl = await this.urlShortenerService.getOriginalUrl(slug);
+
+      if (!originalUrl) {
+        console.warn(`No URL found for slug=${slug}`);
+        throw new NotFoundException('URL not found');
+      }
+
+      console.log(`Retrieved original URL: ${originalUrl}`);
+
+      return { originalUrl };
+    } catch (error) {
+      console.error(`Error fetching URL for slug=${slug}:`, error.message);
+      throw new InternalServerErrorException('Error processing request');
+    }
   }
 }

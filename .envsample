@@ -1,6 +1,0 @@
-ENV=LOCAL
-NODE_ENV=dev
-MONGO_URI=mongodb://mongo:27017
-MONGO_DB_NAME=shorted_url_db
-REDIS_URL=redis://redis:6379
-PORT=3000
