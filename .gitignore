@@ -4,11 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Package Manager Files
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
-
 # Environment Files
 .env
 .env.local

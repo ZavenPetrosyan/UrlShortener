@@ -54,15 +54,6 @@ export class UrlShortenerService {
       }
 
       await redisClient.set(`shorturl:${slug}`, originalUrl, { EX: 3600 });
-
-      const redisCheck = await redisClient.get(`shorturl:${slug}`);
-      if (!redisCheck) {
-        console.error(`Redis did NOT store the key=shorturl:${slug}`);
-      } else {
-        console.log(
-          `Redis Stored Successfully: key=shorturl:${slug}, value=${redisCheck}`,
-        );
-      }
     } catch (error) {
       console.error('Error saving URL:', error);
       throw new ConflictException('Error while storing the short URL');

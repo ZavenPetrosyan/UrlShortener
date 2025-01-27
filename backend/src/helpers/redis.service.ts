@@ -13,7 +13,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.redisClient.on('end', () => {
-      console.warn('⚠️ Redis Client Closed! Attempting to reconnect...');
+      console.warn('Redis Client Closed! Attempting to reconnect...');
       this.initRedis();
     });
   }
@@ -25,18 +25,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private async initRedis() {
     if (!this.redisClient.isOpen) {
       await this.redisClient.connect();
-      console.log('✅ Redis Connected Successfully');
+      console.log('Redis Connected Successfully');
     }
   }
 
   async onModuleDestroy() {
-    console.log('⚠️ Closing Redis connection...');
+    console.log('Closing Redis connection...');
     await this.redisClient.quit();
   }
 
   getClient(): RedisClientType {
     if (!this.redisClient.isOpen) {
-      console.warn('⚠️ Redis Client was closed! Reconnecting...');
+      console.warn('Redis Client was closed! Reconnecting...');
       this.initRedis();
     }
     return this.redisClient;
