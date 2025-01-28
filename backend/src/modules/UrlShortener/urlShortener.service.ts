@@ -11,7 +11,7 @@ import {
 } from '../../models/urlShortener.model';
 import { Model, Types } from 'mongoose';
 import { UrlShortenerResponseDto } from './dto/UrlShortener.dto';
-import { RedisService } from '../../helpers/redis.service';
+import { RedisService } from '../../database/redis.service';
 
 @Injectable()
 export class UrlShortenerService {

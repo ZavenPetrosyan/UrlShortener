@@ -6,11 +6,11 @@ export class JWTUtil {
   private static secretKey: string;
 
   static init(configService: ConfigService) {
-    this.secretKey = configService.get<string>('JWT_SECRET');
+    this.secretKey = configService.get<string>('jwtSecret');
 
     if (!this.secretKey) {
       throw new Error(
-        '❌ JWT_SECRET is not defined! Check your environment variables.',
+        'JWT_SECRET is not defined! Check your environment variables.',
       );
     }
   }

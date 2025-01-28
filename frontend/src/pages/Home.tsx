@@ -138,7 +138,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>🚀 URL Shortener</h1>
+      <h1>URL Shortener</h1>
 
       {/* 🔹 Show Copy Button After URL Shortens */}
       {shortUrl ? (

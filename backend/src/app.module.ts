@@ -7,13 +7,17 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UrlShortenerModule } from './modules/urlShortener/urlShortener.module';
-import { RedisService } from './helpers/redis.service';
+import { RedisService } from './database/redis.service';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { AuthModule } from './modules/auth/auth.module';
+import configuration from './helpers/global.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
     DatabaseModule,
     UrlShortenerModule,
     AuthModule,

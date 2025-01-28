@@ -6,7 +6,7 @@ import {
   UrlShortener,
   UrlShortenerSchema,
 } from '../../models/urlShortener.model';
-import { RedisService } from '../../helpers/redis.service';
+import { RedisService } from '../../database/redis.service';
 
 @Module({
   imports: [

@@ -14,9 +14,9 @@ import { User, UserSchema } from '../../models/user.model';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get<string>('jwtSecret'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '30m',
+          expiresIn: configService.get<string>('jwtExpiresIn') || '30m',
         },
       }),
     }),
