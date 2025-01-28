@@ -23,7 +23,7 @@ const MyUrls: React.FC = () => {
           return;
         }
 
-        const response = await axios.get<UrlData[]>("http://localhost:3000/UrlShortener/user/urls", {
+        const response = await axios.get<UrlData[]>("http://localhost:3000/urlShortener/user/urls", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

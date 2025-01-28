@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/form.css";
 
+const BASE_URL = "http://localhost:3000";
+
 const Login: React.FC<{ setIsAuthenticated: (auth: boolean) => void }> = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -22,13 +24,11 @@ const Login: React.FC<{ setIsAuthenticated: (auth: boolean) => void }> = ({ setI
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(`${BASE_URL}/auth/login`, { username, password });
 
       if (response.data && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken);
+        localStorage.setItem("tokenExpiry", (Date.now() + 30 * 60 * 1000).toString());
         setIsAuthenticated(true);
 
         console.log("Login successful! Redirecting...");
@@ -58,9 +58,7 @@ const Login: React.FC<{ setIsAuthenticated: (auth: boolean) => void }> = ({ setI
         onChange={(e) => setPassword(e.target.value)}
         className="input-field"
       />
-      <button className="button" onClick={handleLogin}>
-        🔐 Login
-      </button>
+      <button className="button" onClick={handleLogin}>🔐 Login</button>
       {error && <p className="error">{error}</p>}
     </div>
   );

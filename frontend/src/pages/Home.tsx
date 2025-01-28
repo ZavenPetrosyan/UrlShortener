@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/form.css";
 import Button from "../components/Button.tsx";
 import InputField from "../components/InputField.tsx";
+import UrlCard from "../components/UrlCard.tsx";
 
 interface UrlData {
   _id: string;
@@ -16,7 +17,7 @@ const BASE_URL = "http://localhost:3000";
 
 const Home: React.FC = () => {
   const [url, setUrl] = useState("");
-  const [shortUrl, setShortUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [urls, setUrls] = useState<UrlData[]>([]);
   const [showUrls, setShowUrls] = useState(false);
@@ -24,27 +25,43 @@ const Home: React.FC = () => {
   const [newSlug, setNewSlug] = useState("");
   const navigate = useNavigate();
 
-  const handleShorten = async () => {
-    if (!url) return;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const tokenExpiry = localStorage.getItem("tokenExpiry");
 
+    if (!token || !tokenExpiry || Date.now() > Number(tokenExpiry)) {
+      console.log("🔴 Token expired. Redirecting to login...");
+      localStorage.removeItem("token");
+      localStorage.removeItem("tokenExpiry");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleShorten = async () => {
+    if (!url.trim()) return;
+  
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/login");
         return;
       }
-
+  
       const response = await axios.post(
-        `${BASE_URL}/UrlShortener`,
+        `${BASE_URL}/urlShortener`,
         { originalUrl: url },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setShortUrl(response.data.shortenedUrl);
+  
       setError("");
-      setUrls([...urls, response.data]); 
-    } catch (err) {
-      setError("⚠️ Failed to shorten URL. Try again.");
+      setShortUrl(response.data.shortenedUrl);
+      setUrls((prevUrls) => [...prevUrls, response.data]);
+    } catch (err: any) {
+      if (err.response && err.response.status === 409) {
+        setError("⚠️ This URL has already been shortened.");
+      } else {
+        setError("⚠️ Failed to shorten URL. Try again.");
+      }
     }
   };
 
@@ -61,7 +78,7 @@ const Home: React.FC = () => {
         return;
       }
 
-      const response = await axios.get(`${BASE_URL}/UrlShortener/user/urls`, {
+      const response = await axios.get(`${BASE_URL}/urlShortener/user/urls`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -73,7 +90,7 @@ const Home: React.FC = () => {
   };
 
   const handleRedirect = (slug: string) => {
-    window.open(`${BASE_URL}/UrlShortener/redirect/${slug}`, "_blank");
+    window.open(`${BASE_URL}/urlShortener/redirect/${slug}`, "_blank");
   };
 
   const handleEditSlug = (id: string, currentSlug: string) => {
@@ -82,7 +99,7 @@ const Home: React.FC = () => {
   };
 
   const handleSaveSlug = async () => {
-    if (!editSlugId || !newSlug) return;
+    if (!editSlugId || !newSlug.trim()) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -92,44 +109,64 @@ const Home: React.FC = () => {
       }
 
       await axios.patch(
-        `${BASE_URL}/UrlShortener/update-slug`,
+        `${BASE_URL}/urlShortener/update-slug`,
         { id: editSlugId, newSlug },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setUrls(urls.map(url =>
-        url._id === editSlugId ? { ...url, slug: newSlug, shortenedUrl: `${BASE_URL}/${newSlug}` } : url
-      ));
+      setUrls((prevUrls) =>
+        prevUrls.map((url) =>
+          url._id === editSlugId ? { ...url, slug: newSlug, shortenedUrl: `${BASE_URL}/${newSlug}` } : url
+        )
+      );
+
       setEditSlugId(null);
     } catch (err) {
       setError("⚠️ Failed to update slug. Try another one.");
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditSlugId(null);
+    setNewSlug("");
+  };
+
+  const handleReset = () => {
+    setShortUrl(null);
+    setUrl("");
+  };
+
   return (
     <div className="container">
       <h1>🚀 URL Shortener</h1>
-      <InputField value={url} onChange={setUrl} placeholder="Enter URL" />
-      <Button onClick={handleShorten} text="Shorten" />
 
-      {shortUrl && (
+      {/* 🔹 Show Copy Button After URL Shortens */}
+      {shortUrl ? (
         <>
-          <button className="home-btn" onClick={() => setShortUrl("")}>🏠 Home</button>
+          <UrlCard shortUrl={shortUrl} />
+          <button className="home-btn" onClick={handleReset}>🏠 Home</button>
+        </>
+      ) : (
+        <>
+          <InputField value={url} onChange={setUrl} placeholder="Enter URL" />
+          <Button onClick={handleShorten} text="Shorten URL" />
         </>
       )}
 
       {error && <p className="error">{error}</p>}
 
+      {/* 🔹 Show Retrieve URLs Button */}
       <button className="get-url-btn" onClick={handleFetchUrls}>
         {showUrls ? "📂 Hide Shortened URLs" : "🔍 Retrieve Shortened URLs"}
       </button>
 
+      {/* 🔹 Display Fetched URLs */}
       {showUrls && (
         <div className="url-list">
           <h2>My Shortened URLs</h2>
           {urls.length > 0 ? (
-            urls.map((url, index) => (
-              <div key={index} className="url-item">
+            urls.map((url) => (
+              <div key={url._id} className="url-item">
                 <strong>Short URL:</strong>{" "}
                 {editSlugId === url._id ? (
                   <>
@@ -140,6 +177,7 @@ const Home: React.FC = () => {
                       className="slug-input"
                     />
                     <button onClick={handleSaveSlug} className="save-btn">💾 Save</button>
+                    <button onClick={handleCancelEdit} className="cancel-btn">❌ Cancel</button>
                   </>
                 ) : (
                   <>
