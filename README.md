@@ -15,13 +15,19 @@ The shortened URLs are stored in MongoDB, while Redis is used for caching and ra
 
 ### 🏗 Backend API Endpoints:
 
-1. **POST /UrlShortener (Create Short URL)**
+1. **POST /urlShortener (Create Short URL)**
    - 🔍 **Purpose**: Generates a short URL from a long URL and stores it in MongoDB and Redis.
 
-2. **GET /UrlShortener/:slug (Retrieve Original URL)**
-   - 🔍 **Purpose**: Returns the original URL based on the short URL slug.
+2. **GET /urlShortener/user/urls (Retrieve URLs)**
+   - 🔍 **Purpose**: Returns all urls for user.
 
-3. **Rate Limiting**
+3. **POST /urlShortener/update-slug (Edit Slug)**
+   - 🔍 **Purpose**: Modifies slug.
+
+4. **POST /auth/login (Login)**
+   - 🔍 **Purpose**: Logs user in and provides auth token.
+
+5. **Rate Limiting**
    - ⚙️ **How it works**:
      - Max Requests: 100 requests per 15 minutes per IP.
 
