@@ -16,7 +16,7 @@ import { User, UserSchema } from '../../models/user.model';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('jwtSecret'),
         signOptions: {
-          expiresIn: configService.get<string>('jwtExpiresIn') || '30m',
+          expiresIn: configService.get<string>('jwtExpiresIn'),
         },
       }),
     }),

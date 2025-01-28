@@ -11,14 +11,14 @@ import {
 } from '../../models/urlShortener.model';
 import { Model, Types } from 'mongoose';
 import { UrlShortenerResponseDto } from './dto/UrlShortener.dto';
-import { RedisService } from '../../database/redis.service';
+import { RedisService } from '../../cache/redis.service';
 
 @Injectable()
 export class UrlShortenerService {
   constructor(
     @InjectModel(UrlShortener.name)
-    private urlShortenerModel: Model<UrlShortenerDocument>,
-    private redisService: RedisService,
+    private readonly urlShortenerModel: Model<UrlShortenerDocument>,
+    private readonly redisService: RedisService,
   ) {}
 
   async getUserUrls(userId: string) {
@@ -26,56 +26,46 @@ export class UrlShortenerService {
       .find({ user: userId })
       .select('_id slug visits shortenedUrl')
       .lean();
-  }  
+  }
 
   async createShortUrl(
     originalUrl: string,
     userId: string,
   ): Promise<UrlShortenerResponseDto> {
-    const existingUrl = await this.urlShortenerModel.findOne({ originalUrl, user: userId });
+    const existingUrl = await this.urlShortenerModel.findOne({
+      originalUrl,
+      user: userId,
+    });
     if (existingUrl) {
       throw new ConflictException('This URL has already been shortened.');
     }
 
     let slug = nanoid(6);
-    let exists = await this.urlShortenerModel.findOne({ slug });
-
-    while (exists) {
+    while (await this.urlShortenerModel.exists({ slug })) {
       slug = nanoid(6);
-      exists = await this.urlShortenerModel.findOne({ slug });
     }
 
     const shortenedUrl = `${process.env.BASE_URL}/${slug}`;
     const redisClient = this.redisService.getClient();
 
     try {
-      const newShortUrl = new this.urlShortenerModel({
+      await this.urlShortenerModel.create({
         slug,
         originalUrl,
         shortenedUrl,
         user: new Types.ObjectId(userId),
       });
 
-      await newShortUrl.save();
-
-      console.log(
-        `Storing in Redis: key=shorturl:${slug}, value=${originalUrl}`,
-      );
-
-      if (!redisClient.isOpen) {
-        console.warn('Redis client was closed! Attempting to reconnect...');
-        await this.redisService.onModuleInit();
-      }
-
+      console.log(`Caching in Redis: ${slug} → ${originalUrl}`);
       await redisClient.set(`shorturl:${slug}:${userId}`, originalUrl, {
-        EX: 3600,
+        EX: 86400,
       });
+
+      return { shortenedUrl };
     } catch (error) {
       console.error('Error saving URL:', error);
       throw new ConflictException('Error while storing the short URL');
     }
-
-    return { shortenedUrl };
   }
 
   async updateSlug(id: string, newSlug: string, userId: string) {
@@ -83,15 +73,10 @@ export class UrlShortenerService {
       _id: id,
       user: userId,
     });
-
-    if (!existingUrl) {
-      throw new NotFoundException('URL not found');
-    }
+    if (!existingUrl) throw new NotFoundException('URL not found');
 
     const slugExists = await this.urlShortenerModel.findOne({ slug: newSlug });
-    if (slugExists) {
-      throw new ConflictException('Slug already in use');
-    }
+    if (slugExists) throw new ConflictException('Slug already in use');
 
     const redisClient = this.redisService.getClient();
 
@@ -104,21 +89,22 @@ export class UrlShortenerService {
     await redisClient.set(
       `shorturl:${newSlug}:${userId}`,
       existingUrl.originalUrl,
-      { EX: 3600 },
+      { EX: 86400 },
     );
 
     return existingUrl;
   }
 
-  async getOriginalUrl(slug: string, userId?: string) {
-    const urlEntry = await this.urlShortenerModel.findOne({ slug });
+  async getOriginalUrl(slug: string) {
+    const urlEntry = await this.urlShortenerModel.findOneAndUpdate(
+      { slug },
+      { $inc: { visits: 1 } },
+      { new: true },
+    );
 
     if (!urlEntry) {
-      throw new NotFoundException('Short URL not found');
+      throw new NotFoundException('Short URL not found.');
     }
-
-    urlEntry.visits = (urlEntry.visits || 0) + 1;
-    await urlEntry.save();
 
     return urlEntry.originalUrl;
   }

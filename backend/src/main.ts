@@ -8,7 +8,7 @@ import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 
 import { AppModule } from './app.module';
-import { RedisService } from './database/redis.service';
+import { RedisService } from './cache/redis.service';
 
 async function bootstrap() {
   dotenv.config();

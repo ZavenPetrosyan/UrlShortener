@@ -59,17 +59,13 @@ export class UrlShortenerController {
   @ApiOperation({ summary: 'Update a shortened URL slug' })
   @ApiResponse({ status: 200, description: 'Slug updated successfully' })
   async updateSlug(
-    @Body() updateSlugDto: UpdateSlugDto,
-    @GetUser() user: { id: string },
+    @Body() { id, newSlug }: UpdateSlugDto,
+    @GetUser() { id: userId }: { id: string },
   ) {
-    return this.urlShortenerService.updateSlug(
-      updateSlugDto.id,
-      updateSlugDto.newSlug,
-      user.id,
-    );
+    return this.urlShortenerService.updateSlug(id, newSlug, userId);
   }
 
-  @Get('redirect/:slug') 
+  @Get('redirect/:slug')
   @ApiOperation({ summary: 'Redirect to original URL and track visits' })
   @ApiResponse({ status: 302, description: 'Redirects to the original URL' })
   async redirectToOriginalUrl(
@@ -87,7 +83,7 @@ export class UrlShortenerController {
 
       return res.redirect(302, originalUrl);
     } catch (error) {
-      console.log('Redirection failed:', error);
+      console.error('Redirection failed:', error);
       return res.status(404).json({ message: 'Short URL not found' });
     }
   }

@@ -8,6 +8,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('login')
   @ApiOperation({ summary: 'User Login' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
@@ -15,7 +16,6 @@ export class AuthController {
     description: 'Login successful, returns JWT token',
   })
   @ApiResponse({ status: 400, description: 'Invalid credentials' })
-  @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }

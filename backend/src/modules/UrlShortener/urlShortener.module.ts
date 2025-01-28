@@ -6,16 +6,17 @@ import {
   UrlShortener,
   UrlShortenerSchema,
 } from '../../models/urlShortener.model';
-import { RedisService } from '../../database/redis.service';
+import { RedisModule } from '../../cache/redis.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: UrlShortener.name, schema: UrlShortenerSchema },
     ]),
+    RedisModule,
   ],
   controllers: [UrlShortenerController],
-  providers: [UrlShortenerService, RedisService],
+  providers: [UrlShortenerService],
   exports: [UrlShortenerService],
 })
 export class UrlShortenerModule {}
