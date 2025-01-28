@@ -24,14 +24,19 @@ export class UrlShortenerService {
   async getUserUrls(userId: string) {
     return this.urlShortenerModel
       .find({ user: userId })
-      .select('-_id slug visits shortenedUrl')
+      .select('_id slug visits shortenedUrl')
       .lean();
-  }
+  }  
 
   async createShortUrl(
     originalUrl: string,
     userId: string,
   ): Promise<UrlShortenerResponseDto> {
+    const existingUrl = await this.urlShortenerModel.findOne({ originalUrl, user: userId });
+    if (existingUrl) {
+      throw new ConflictException('This URL has already been shortened.');
+    }
+
     let slug = nanoid(6);
     let exists = await this.urlShortenerModel.findOne({ slug });
 

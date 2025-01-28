@@ -7,4 +7,4 @@ BASE_URL=https://short.ly
 PORT=3000
 
 JWT_SECRET=super_secret_jwt_key
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=30m

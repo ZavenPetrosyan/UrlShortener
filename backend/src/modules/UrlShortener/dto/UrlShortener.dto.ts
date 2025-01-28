@@ -12,3 +12,15 @@ export class UrlShortenerResponseDto {
   @ApiProperty({ example: 'https://short.ly/abc123' })
   shortenedUrl: string;
 }
+
+export class UpdateSlugDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @ApiProperty({ example: 'SL123ug' })
+  @IsString()
+  @IsNotEmpty()
+  newSlug: string;
+}

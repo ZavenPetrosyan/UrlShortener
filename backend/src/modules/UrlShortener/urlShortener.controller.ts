@@ -18,6 +18,7 @@ import {
 
 import { UrlShortenerService } from './urlShortener.service';
 import {
+  UpdateSlugDto,
   UrlShortenerRequestDto,
   UrlShortenerResponseDto,
 } from './dto/UrlShortener.dto';
@@ -26,8 +27,8 @@ import { GetUser } from '../../middleware/getUser';
 import { Response } from 'express';
 
 @ApiTags('UrlShortener')
-// @ApiBearerAuth('User-JWT')
-@Controller('UrlShortener')
+@ApiBearerAuth('User-JWT')
+@Controller('urlShortener')
 export class UrlShortenerController {
   constructor(private readonly urlShortenerService: UrlShortenerService) {}
 
@@ -58,7 +59,7 @@ export class UrlShortenerController {
   @ApiOperation({ summary: 'Update a shortened URL slug' })
   @ApiResponse({ status: 200, description: 'Slug updated successfully' })
   async updateSlug(
-    @Body() updateSlugDto: { id: string; newSlug: string },
+    @Body() updateSlugDto: UpdateSlugDto,
     @GetUser() user: { id: string },
   ) {
     return this.urlShortenerService.updateSlug(
@@ -68,7 +69,7 @@ export class UrlShortenerController {
     );
   }
 
-  @Get('redirect/:slug')
+  @Get('redirect/:slug') 
   @ApiOperation({ summary: 'Redirect to original URL and track visits' })
   @ApiResponse({ status: 302, description: 'Redirects to the original URL' })
   async redirectToOriginalUrl(
