@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
+import { User } from './user.model';
 
 export type UrlShortenerDocument = HydratedDocument<UrlShortener>;
 
@@ -14,8 +16,8 @@ export class UrlShortener {
   @Prop({ required: true })
   shortenedUrl: string;
 
-  @Prop()
-  userId?: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  user: User;
 }
 
 export const UrlShortenerSchema = SchemaFactory.createForClass(UrlShortener);

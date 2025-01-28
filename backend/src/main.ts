@@ -41,6 +41,17 @@ async function bootstrap() {
     .setTitle('UrlShortener APIs')
     .setDescription('API documentation for UrlShortener')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter user JWT token',
+        in: 'header',
+      },
+      'User-JWT',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);

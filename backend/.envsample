@@ -5,3 +5,6 @@ MONGO_DB_NAME=shorted_url_db
 REDIS_URL=redis://redis:6379
 BASE_URL=https://short.ly
 PORT=3000
+
+JWT_SECRET=super_secret_jwt_key
+JWT_EXPIRES_IN=7d

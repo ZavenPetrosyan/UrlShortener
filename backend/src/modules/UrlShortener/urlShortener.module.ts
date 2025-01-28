@@ -2,8 +2,11 @@ import { Module } from '@nestjs/common';
 import { UrlShortenerController } from './urlShortener.controller';
 import { UrlShortenerService } from './urlShortener.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UrlShortener, UrlShortenerSchema } from './urlShortener.entity';
-import { RedisService } from '../helpers/redis.service';
+import {
+  UrlShortener,
+  UrlShortenerSchema,
+} from '../../models/urlShortener.model';
+import { RedisService } from '../../helpers/redis.service';
 
 @Module({
   imports: [

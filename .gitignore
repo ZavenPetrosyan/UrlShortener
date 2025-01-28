@@ -40,3 +40,5 @@ frontend/coverage/
 
 # Docker
 docker-compose.override.yml
+
+nodemon.json
