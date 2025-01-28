@@ -15,16 +15,17 @@ const UrlCard: React.FC<UrlCardProps> = ({ shortUrl }) => {
 
   return (
     <div className="url-card">
-      <p className="success-message"><i>Success! Here's your short URL:</i></p>
+      <p className="success-message">
+        🎉 <strong>Success!</strong> Here's your short URL:
+      </p>
       <div className="url-container">
-        <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+        <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="shortened-url">
           {shortUrl}
         </a>
         <button className="copy-btn" onClick={handleCopy}>
-          📋 Copy
+          📋 {copied ? "Copied!" : "Copy"}
         </button>
       </div>
-      {copied && <p className="copied-text">Copied to clipboard!</p>}
     </div>
   );
 };

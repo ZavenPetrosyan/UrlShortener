@@ -11,7 +11,7 @@ import {
 } from '../../models/urlShortener.model';
 import { Model, Types } from 'mongoose';
 import { UrlShortenerResponseDto } from './dto/UrlShortener.dto';
-import { RedisService } from '../../cache/redis.service';
+import { RedisService } from '../../database/redis.service';
 
 @Injectable()
 export class UrlShortenerService {
@@ -56,7 +56,7 @@ export class UrlShortenerService {
         user: new Types.ObjectId(userId),
       });
 
-      console.log(`Caching in Redis: ${slug} → ${originalUrl}`);
+      console.log(`Caching in Redis: ${slug} -> ${originalUrl}`);
       await redisClient.set(`shorturl:${slug}:${userId}`, originalUrl, {
         EX: 86400,
       });

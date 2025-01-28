@@ -39,29 +39,29 @@ const Home: React.FC = () => {
 
   const handleShorten = async () => {
     if (!url.trim()) return;
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/login");
         return;
       }
-  
+
       const response = await axios.post(
         `${BASE_URL}/urlShortener`,
         { originalUrl: url },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       setError("");
       setShortUrl(response.data.shortenedUrl);
       setUrls((prevUrls) => [...prevUrls, response.data]);
     } catch (err: any) {
-      if (err.response && err.response.status === 409) {
-        setError("⚠️ This URL has already been shortened.");
-      } else {
-        setError("⚠️ Failed to shorten URL. Try again.");
-      }
+      setError(
+        err.response && err.response.status === 409
+          ? "⚠️ This URL has already been shortened."
+          : "⚠️ Failed to shorten URL. Try again."
+      );
     }
   };
 
@@ -84,7 +84,7 @@ const Home: React.FC = () => {
 
       setUrls(response.data);
       setShowUrls(true);
-    } catch (err) {
+    } catch {
       setError("⚠️ Failed to fetch URLs. Please try again.");
     }
   };
@@ -116,12 +116,14 @@ const Home: React.FC = () => {
 
       setUrls((prevUrls) =>
         prevUrls.map((url) =>
-          url._id === editSlugId ? { ...url, slug: newSlug, shortenedUrl: `${BASE_URL}/${newSlug}` } : url
+          url._id === editSlugId
+            ? { ...url, slug: newSlug, shortenedUrl: `${BASE_URL}/${newSlug}` }
+            : url
         )
       );
 
       setEditSlugId(null);
-    } catch (err) {
+    } catch {
       setError("⚠️ Failed to update slug. Try another one.");
     }
   };
@@ -138,13 +140,14 @@ const Home: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>URL Shortener</h1>
+      <h1>🚀 URL Shortener</h1>
 
-      {/* 🔹 Show Copy Button After URL Shortens */}
       {shortUrl ? (
         <>
           <UrlCard shortUrl={shortUrl} />
-          <button className="home-btn" onClick={handleReset}>🏠 Home</button>
+          <button className="home-btn" onClick={handleReset}>
+            🏠 Home
+          </button>
         </>
       ) : (
         <>
@@ -155,12 +158,10 @@ const Home: React.FC = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {/* 🔹 Show Retrieve URLs Button */}
       <button className="get-url-btn" onClick={handleFetchUrls}>
         {showUrls ? "📂 Hide Shortened URLs" : "🔍 Retrieve Shortened URLs"}
       </button>
 
-      {/* 🔹 Display Fetched URLs */}
       {showUrls && (
         <div className="url-list">
           <h2>My Shortened URLs</h2>
@@ -176,21 +177,30 @@ const Home: React.FC = () => {
                       onChange={(e) => setNewSlug(e.target.value)}
                       className="slug-input"
                     />
-                    <button onClick={handleSaveSlug} className="save-btn">💾 Save</button>
-                    <button onClick={handleCancelEdit} className="cancel-btn">❌ Cancel</button>
+                    <button onClick={handleSaveSlug} className="save-btn">
+                      💾 Save
+                    </button>
+                    <button onClick={handleCancelEdit} className="cancel-btn">
+                      ❌ Cancel
+                    </button>
                   </>
                 ) : (
                   <>
-                    <button className="link-btn" onClick={() => handleRedirect(url.slug)}>
+                    <button
+                      className="link-btn"
+                      onClick={() => handleRedirect(url.slug)}
+                    >
                       {url.shortenedUrl}
                     </button>{" "}
-                    <button onClick={() => handleEditSlug(url._id, url.slug)} className="edit-btn">
+                    <button
+                      onClick={() => handleEditSlug(url._id, url.slug)}
+                      className="edit-btn"
+                    >
                       ✏️ Edit
                     </button>
                   </>
                 )}
 
-                {/* 🏆 Improved Visit Display */}
                 <div className="visits-container">
                   <span className="visits-icon">📊</span>
                   <span className="visits-text">{url.visits} visits</span>

@@ -50,7 +50,7 @@ export class UrlShortenerController {
 
   @Get('user/urls')
   @ApiOperation({ summary: 'Get all URLs created by the authenticated user' })
-  @ApiResponse({ status: 200, description: 'Returns user’s URLs' })
+  @ApiResponse({ status: 200, description: 'Returns user\'s URLs' })
   async getUserUrls(@GetUser() user: { id: string }) {
     return this.urlShortenerService.getUserUrls(user.id);
   }
