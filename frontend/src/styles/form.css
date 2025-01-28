@@ -34,12 +34,13 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 button:hover {
   transform: scale(1.05);
   background: linear-gradient(45deg, #2575FC, #6A11CB);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .url-list {
@@ -53,6 +54,21 @@ button:hover {
   width: 100%;
   max-width: 600px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.url-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.url-list::-webkit-scrollbar-thumb {
+  background: #007BFF;
+  border-radius: 10px;
+}
+
+.url-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
 .url-list h2 {
@@ -68,7 +84,16 @@ button:hover {
   border-bottom: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.url-item:hover {
+  transform: translateY(-2px);
 }
 
 .url-item:last-child {
@@ -77,24 +102,78 @@ button:hover {
 
 .url-item strong {
   color: #333;
-}
-
-.url-item a {
-  color: #007BFF;
-  font-weight: bold;
-  text-decoration: none;
   font-size: 16px;
 }
 
-.url-item a:hover {
+.link-btn {
+  background: none;
+  border: none;
+  color: #007bff;
   text-decoration: underline;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
 }
 
-.no-urls {
-  text-align: center;
-  color: #777;
+.link-btn:hover {
+  text-decoration: none;
+  color: #0056b3;
+}
+
+.visits-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #f4f4f4;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #333;
+  width: fit-content;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.visits-icon {
   font-size: 16px;
-  padding: 10px;
+}
+
+.visits-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.edit-btn {
+  background: linear-gradient(45deg, #6A11CB, #2575FC);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.edit-btn:hover {
+  background: linear-gradient(45deg, #2575FC, #6A11CB);
+}
+
+.save-btn {
+  background: linear-gradient(45deg, #28A745, #218838);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.save-btn:hover {
+  background: linear-gradient(45deg, #218838, #28A745);
 }
 
 .get-url-btn {
@@ -158,5 +237,9 @@ button:hover {
   .get-url-btn {
     font-size: 16px;
     padding: 12px;
+  }
+
+  .url-list {
+    max-height: 300px;
   }
 }

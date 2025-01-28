@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UrlShortenerModule } from './modules/UrlShortener/urlShortener.module';
@@ -18,6 +23,11 @@ import { AuthModule } from './modules/auth/auth.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        { path: 'UrlShortener/redirect/:slug', method: RequestMethod.GET }, // Allow redirect without JWT
+      )
+      .forRoutes('*');
   }
 }

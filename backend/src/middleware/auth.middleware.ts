@@ -24,7 +24,6 @@ export class AuthMiddleware implements NestMiddleware {
 
     this.logger.debug(`Incoming request to: ${originalUrl}`);
 
-    // 🔹 Bypass authentication for public routes
     if (this.publicRoutes.includes(normalizedUrl)) {
       this.logger.debug(
         `Bypassing authentication for public route: ${normalizedUrl}`,

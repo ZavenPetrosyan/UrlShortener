@@ -16,6 +16,9 @@ export class UrlShortener {
   @Prop({ required: true })
   shortenedUrl: string;
 
+  @Prop({ default: 0 })
+  visits: number;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   user: User;
 }

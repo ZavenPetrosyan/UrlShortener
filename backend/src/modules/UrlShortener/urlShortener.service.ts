@@ -2,7 +2,6 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,7 +24,7 @@ export class UrlShortenerService {
   async getUserUrls(userId: string) {
     return this.urlShortenerModel
       .find({ user: userId })
-      .select('-_id slug originalUrl shortenedUrl')
+      .select('-_id slug visits shortenedUrl')
       .lean();
   }
 
@@ -74,42 +73,48 @@ export class UrlShortenerService {
     return { shortenedUrl };
   }
 
-  async getOriginalUrl(slug: string, userId: string): Promise<string> {
+  async updateSlug(id: string, newSlug: string, userId: string) {
+    const existingUrl = await this.urlShortenerModel.findOne({
+      _id: id,
+      user: userId,
+    });
+
+    if (!existingUrl) {
+      throw new NotFoundException('URL not found');
+    }
+
+    const slugExists = await this.urlShortenerModel.findOne({ slug: newSlug });
+    if (slugExists) {
+      throw new ConflictException('Slug already in use');
+    }
+
     const redisClient = this.redisService.getClient();
 
-    try {
-      console.log(`Checking Redis Cache: key=shorturl:${slug}`);
+    await redisClient.del(`shorturl:${existingUrl.slug}:${userId}`);
 
-      const cachedUrl = await redisClient.get(`shorturl:${slug}:${userId}`);
-      if (cachedUrl) {
-        console.log(
-          `Cache Hit: key=shorturl:${slug}:${userId}, URL=${cachedUrl}`,
-        );
-        return cachedUrl;
-      }
+    existingUrl.slug = newSlug;
+    existingUrl.shortenedUrl = `${process.env.BASE_URL}/${newSlug}`;
+    await existingUrl.save();
 
-      console.log(`Cache Miss: Fetching from MongoDB for userId=${userId}`);
+    await redisClient.set(
+      `shorturl:${newSlug}:${userId}`,
+      existingUrl.originalUrl,
+      { EX: 3600 },
+    );
 
-      const result = await this.urlShortenerModel.findOne({
-        slug,
-        user: userId,
-      });
+    return existingUrl;
+  }
 
-      if (!result) {
-        console.warn(`URL Not Found for slug=${slug} and userId=${userId}`);
-        throw new NotFoundException(
-          'Short URL not found or unauthorized access',
-        );
-      }
+  async getOriginalUrl(slug: string, userId?: string) {
+    const urlEntry = await this.urlShortenerModel.findOne({ slug });
 
-      await redisClient.set(`shorturl:${slug}:${userId}`, result.originalUrl, {
-        EX: 3600,
-      });
-
-      return result.originalUrl;
-    } catch (error) {
-      console.error(`Error retrieving URL for slug=${slug}:`, error.message);
-      throw new InternalServerErrorException('Short URL retrieval failed');
+    if (!urlEntry) {
+      throw new NotFoundException('Short URL not found');
     }
+
+    urlEntry.visits = (urlEntry.visits || 0) + 1;
+    await urlEntry.save();
+
+    return urlEntry.originalUrl;
   }
 }
